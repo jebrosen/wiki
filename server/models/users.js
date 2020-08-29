@@ -273,7 +273,9 @@ module.exports = class User extends Model {
 
   static async login (opts, context) {
     if (_.has(WIKI.auth.strategies, opts.strategy)) {
-      const strInfo = _.find(WIKI.data.authentication, ['key', opts.strategy])
+      // const strInfo = _.find(WIKI.data.authentication, ['key', opts.strategy])
+      const strDefn = WIKI.auth.strategies[opts.strategy];
+      const strInfo = _.find(WIKI.data.authentication, ['key', strDefn.strategyKey]);
 
       // Inject form user/pass
       if (strInfo.useForm) {
