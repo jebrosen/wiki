@@ -15,8 +15,9 @@ module.exports = {
         sandbox: false,
         clientID: conf.clientId,
         clientSecret: conf.clientSecret,
-        callbackURL: conf.callbackURL
-      }, async (accessToken, refreshToken, params, profile, cb) => {
+        callbackURL: conf.callbackURL,
+        passReqToCallback: true,
+      }, async (req, accessToken, refreshToken, params, profile, cb) => {
         try {
           const user = await WIKI.models.users.processProfile({
             profile: {
@@ -24,7 +25,7 @@ module.exports = {
               displayName: params.name,
               ...profile,
             },
-            providerKey: 'orcid'
+            providerKey: req.params.strategy,
           })
           cb(null, user)
         } catch (err) {
