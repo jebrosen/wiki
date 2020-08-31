@@ -28,7 +28,7 @@ module.exports = class User extends Model {
         providerId: {type: 'string'},
         password: {type: 'string'},
         tfaIsActive: {type: 'boolean', default: false},
-        tfaSecret: {type: 'string'},
+        tfaSecret: {type: ['string', null]},
         jobTitle: {type: 'string'},
         location: {type: 'string'},
         pictureUrl: {type: 'string'},
@@ -163,7 +163,7 @@ module.exports = class User extends Model {
 
   static async processProfile({ profile, providerKey }) {
     const provider = _.get(WIKI.auth.strategies, providerKey, {})
-    provider.info = _.find(WIKI.data.authentication, ['key', providerKey])
+    provider.info = _.find(WIKI.data.authentication, ['key', provider.stategyKey])
 
     // Find existing user
     let user = await WIKI.models.users.query().findOne({
@@ -275,9 +275,8 @@ module.exports = class User extends Model {
 
   static async login (opts, context) {
     if (_.has(WIKI.auth.strategies, opts.strategy)) {
-      // const strInfo = _.find(WIKI.data.authentication, ['key', opts.strategy])
-      const strDefn = WIKI.auth.strategies[opts.strategy];
-      const strInfo = _.find(WIKI.data.authentication, ['key', strDefn.strategyKey]);
+      const selStrategy = _.get(WIKI.auth.strategies, opts.strategy)
+      const strInfo = _.find(WIKI.data.authentication, ['key', selStrategy.strategyKey])
 
       // Inject form user/pass
       if (strInfo.useForm) {
@@ -287,7 +286,7 @@ module.exports = class User extends Model {
 
       // Authenticate
       return new Promise((resolve, reject) => {
-        WIKI.auth.passport.authenticate(strDefn.strategyKey, {
+        WIKI.auth.passport.authenticate(selStrategy.strategyKey, {
           session: !strInfo.useForm,
           scope: strInfo.scopes ? strInfo.scopes : null
         }, async (err, user, info) => {
@@ -295,7 +294,10 @@ module.exports = class User extends Model {
           if (!user) { return reject(new WIKI.Error.AuthLoginFailed()) }
 
           try {
-            const resp = await WIKI.models.users.afterLoginChecks(user, context)
+            const resp = await WIKI.models.users.afterLoginChecks(user, context, {
+              skipTFA: !strInfo.useForm,
+              skipChangePwd: !strInfo.useForm
+            })
             resolve(resp)
           } catch (err) {
             reject(err)
@@ -476,6 +478,38 @@ module.exports = class User extends Model {
     } else {
       throw new WIKI.Error.UserNotFound()
     }
+  }
+
+  /**
+   * Send a password reset request
+   */
+  static async loginForgotPassword ({ email }, context) {
+    const usr = await WIKI.models.users.query().where({
+      email,
+      providerKey: 'local'
+    }).first()
+    if (!usr) {
+      WIKI.logger.debug(`Password reset attempt on nonexistant local account ${email}: [DISCARDED]`)
+      return
+    }
+    const resetToken = await WIKI.models.userKeys.generateToken({
+      userId: usr.id,
+      kind: 'resetPwd'
+    })
+
+    await WIKI.mail.send({
+      template: 'accountResetPwd',
+      to: email,
+      subject: `Password Reset Request`,
+      data: {
+        preheadertext: `A password reset was requested for ${WIKI.config.title}`,
+        title: `A password reset was requested for ${WIKI.config.title}`,
+        content: `Click the button below to reset your password. If you didn't request this password reset, simply discard this email.`,
+        buttonLink: `${WIKI.config.host}/login-reset/${resetToken}`,
+        buttonText: 'Reset Password'
+      },
+      text: `A password reset was requested for wiki ${WIKI.config.title}. Open the following link to proceed: ${WIKI.config.host}/login-reset/${resetToken}`
+    })
   }
 
   /**
