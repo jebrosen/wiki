@@ -236,6 +236,7 @@ module.exports = class User extends Model {
     }
 
     // Self-registration
+    // TODO: provider here is the wrong thing
     if (provider.selfRegistration) {
       // Check if email domain is whitelisted
       if (_.get(provider, 'domainWhitelist', []).length > 0) {
@@ -261,6 +262,7 @@ module.exports = class User extends Model {
       })
 
       // Assign to group(s)
+      // This is also apparently the wrong provider or whatever
       if (provider.autoEnrollGroups.length > 0) {
         await user.$relatedQuery('groups').relate(provider.autoEnrollGroups)
       }
@@ -285,7 +287,7 @@ module.exports = class User extends Model {
 
       // Authenticate
       return new Promise((resolve, reject) => {
-        WIKI.auth.passport.authenticate(opts.strategy, {
+        WIKI.auth.passport.authenticate(strDefn.strategyKey, {
           session: !strInfo.useForm,
           scope: strInfo.scopes ? strInfo.scopes : null
         }, async (err, user, info) => {

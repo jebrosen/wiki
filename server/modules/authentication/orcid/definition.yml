@@ -1,0 +1,23 @@
+key: orcid
+title: ORCiD
+description: ORCiD
+author: Jeb
+color: red darken-1
+isAvailable: true
+useForm: false
+props:
+  clientId:
+    type: String
+    title: Client ID
+    hint: Application Client ID
+    order: 1
+  clientSecret:
+    type: String
+    title: Client Secret
+    hint: Application Client Secret
+    order: 2
+  callbackURL:
+    type: String
+    title: Redirect URI
+    hint: Application Redirect URI
+    order: 3
