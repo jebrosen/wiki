@@ -1,8 +1,9 @@
 key: orcid
 title: ORCiD
 description: ORCiD
-author: Jeb
-color: red darken-1
+author: Jeb Rosen
+logo: https://orcid.org/assets/vectors/orcid.logo.icon.svg
+color: green darken-1
 isAvailable: true
 useForm: false
 props:
