@@ -21,7 +21,8 @@ module.exports = {
         try {
           const user = await WIKI.models.users.processProfile({
             profile: {
-              email: params.orcid + "@example.com",
+              id: params.orcid,
+              email: params.orcid + "@tehub.org",
               displayName: params.name,
               ...profile,
             },
