@@ -238,11 +238,11 @@
     page-selector(mode='create', v-model='duplicateOpts.modal', :open-handler='pageDuplicateHandle', :path='duplicateOpts.path', :locale='duplicateOpts.locale')
     page-delete(v-model='deletePageModal', v-if='path && path.length')
 
-    .nav-header-dev(v-if='isDevMode')
-      v-icon mdi-alert
-      div
-        .overline DEVELOPMENT VERSION
-        .overline This code base is NOT for production use!
+<!--    .nav-header-dev(v-if='isDevMode')-->
+<!--      v-icon mdi-alert-->
+<!--      div-->
+<!--        .overline DEVELOPMENT VERSION-->
+<!--        .overline This code base is NOT for production use!-->
 </template>
 
 <script>
