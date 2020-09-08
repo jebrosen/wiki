@@ -15,7 +15,7 @@
         prepend-inner-icon='mdi-magnify'
         :loading='searchIsLoading'
         @keyup.enter='searchEnter'
-        autocomplete='off'
+        autocomplete='none'
       )
     v-layout(row)
       v-flex(xs5, md4)
@@ -68,7 +68,7 @@
                 @blur='searchBlur'
                 @keyup.down='searchMove(`down`)'
                 @keyup.up='searchMove(`up`)'
-                autocomplete='off'
+                autocomplete='none'
               )
             v-tooltip(bottom)
               template(v-slot:activator='{ on }')
@@ -248,7 +248,6 @@
 <script>
 import { get, sync } from 'vuex-pathify'
 import _ from 'lodash'
-import Cookies from 'js-cookie'
 
 import movePageMutation from 'gql/common/common-pages-mutation-move.gql'
 
@@ -306,7 +305,7 @@ export default {
       if (this.pictureUrl && this.pictureUrl.length > 1) {
         return {
           kind: 'image',
-          url: this.pictureUrl
+          url: (this.pictureUrl === 'internal') ? `/_userav/${this.$store.get('user/id')}` : this.pictureUrl
         }
       } else {
         const nameParts = this.name.toUpperCase().split(' ')
@@ -462,8 +461,7 @@ export default {
       }
     },
     logout () {
-      Cookies.remove('jwt')
-      window.location.assign('/')
+      window.location.assign('/logout')
     },
     goHome () {
       window.location.assign('/')

@@ -23,11 +23,12 @@ module.exports = {
             ca: [
               fs.readFileSync(conf.tlsCertPath)
             ]
-          } : {}
+          } : {},
+          includeRaw: true
         },
         usernameField: 'email',
         passwordField: 'password',
-        passReqToCallback: false
+        passReqToCallback: true
       }, async (req, profile, cb) => {
         try {
           const userId = _.get(profile, conf.mappingUID, null)
@@ -41,7 +42,7 @@ module.exports = {
               id: userId,
               email: String(_.get(profile, conf.mappingEmail, '')).split(',')[0],
               displayName: _.get(profile, conf.mappingDisplayName, '???'),
-              picture: _.get(profile, conf.mappingPicture, '')
+              picture: _.get(profile, `_raw.${conf.mappingPicture}`, '')
             }
           })
           cb(null, user)
