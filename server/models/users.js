@@ -128,7 +128,8 @@ module.exports = class User extends Model {
       tfaIsActive: false,
       tfaSecret: tfaInfo.secret
     })
-    return qr.imageSync(`otpauth://totp/${WIKI.config.title}:${this.email}?secret=${tfaInfo.secret}`, { type: 'svg' })
+    const safeTitle = WIKI.config.title.replace(/[\s-.,=!@#$%?&*()+[\]{}/\\;<>]/g, '')
+    return qr.imageSync(`otpauth://totp/${safeTitle}:${this.email}?secret=${tfaInfo.secret}`, { type: 'svg' })
   }
 
   async enableTFA() {
@@ -677,7 +678,7 @@ module.exports = class User extends Model {
         if (dupUsr) {
           throw new WIKI.Error.AuthAccountAlreadyExists()
         }
-        usrData.email = email
+        usrData.email = _.toLower(email)
       }
       if (!_.isEmpty(name) && name !== usr.name) {
         usrData.name = _.trim(name)
