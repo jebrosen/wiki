@@ -57,8 +57,14 @@ module.exports = async (pageId) => {
     await WIKI.models.knex.table('pageTree').truncate()
     if (tree.length > 0) {
       // -> Save in chunks, because of per query max parameters (35k Postgres, 2k MSSQL, 1k for SQLite)
-      for (const chunk of _.chunk(tree, 100)) {
-        await WIKI.models.knex.table('pageTree').insert(chunk)
+      if ((WIKI.config.db.type !== 'sqlite')) {
+        for (const chunk of _.chunk(tree, 100)) {
+          await WIKI.models.knex.table('pageTree').insert(chunk)
+        }
+      } else {
+        for (const chunk of _.chunk(tree, 60)) {
+          await WIKI.models.knex.table('pageTree').insert(chunk)
+        }
       }
     }
 
@@ -68,5 +74,7 @@ module.exports = async (pageId) => {
   } catch (err) {
     WIKI.logger.error(`Rebuilding page tree: [ FAILED ]`)
     WIKI.logger.error(err.message)
+    // exit process with error code
+    throw err
   }
 }
