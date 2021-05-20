@@ -318,6 +318,7 @@
 <script>
 import { StatusIndicator } from 'vue-status-indicator'
 import Tabset from './tabset.vue'
+import BetterTable from './better-table.vue'
 import NavSidebar from './nav-sidebar.vue'
 import Prism from 'prismjs'
 import mermaid from 'mermaid'
@@ -327,6 +328,7 @@ import ClipboardJS from 'clipboard'
 import Vue from 'vue'
 
 Vue.component('Tabset', Tabset)
+Vue.component('better-table', BetterTable)
 
 Prism.plugins.autoloader.languages_path = '/_assets/js/prism/'
 Prism.plugins.NormalizeWhitespace.setDefaults({

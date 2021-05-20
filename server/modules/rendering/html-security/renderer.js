@@ -8,7 +8,7 @@ module.exports = {
       const DOMPurify = createDOMPurify(window)
 
       const allowedAttrs = ['v-pre', 'v-slot:tabs', 'v-slot:content', 'target']
-      const allowedTags = ['tabset', 'template']
+      const allowedTags = ['tabset', 'template', 'better-table']
 
       if (config.allowDrawIoUnsafe) {
         allowedTags.push('foreignObject')
